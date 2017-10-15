@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import gib.controlling.client.mappings.PlayerRequest;
 import gib.controlling.client.setup.GameFiles;
 import gib.controlling.client.setup.Params;
+import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.PersistenceProvider;
 import gib.controlling.persistence.SettingsPersistence;
 import gib.controlling.zohoAPI.ZohoPersistenceProvider;

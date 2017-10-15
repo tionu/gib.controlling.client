@@ -37,6 +37,11 @@ public class Launcher {
 			// TODO handle invalid settings
 		}
 
+		ObserveGame observeGame = new ObserveGame(settingsPersistence);
+		new Thread(observeGame).start();
+		ObserveLevel observeLevel = new ObserveLevel(settingsPersistence);
+		new Thread(observeLevel).start();
+
 		System.out.println("Game ready");
 
 	}

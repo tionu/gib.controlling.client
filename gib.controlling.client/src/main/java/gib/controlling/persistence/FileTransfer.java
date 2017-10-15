@@ -1,11 +1,10 @@
-package gib.controlling.client;
+package gib.controlling.persistence;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import gib.controlling.client.setup.Params;
-import gib.controlling.persistence.PersistenceProvider;
 import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class FileTransfer {

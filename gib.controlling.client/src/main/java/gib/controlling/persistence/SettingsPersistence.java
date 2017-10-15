@@ -59,6 +59,7 @@ public class SettingsPersistence {
 		Settings defaultSettings = new Settings();
 		UUID uuid = UUID.randomUUID();
 		defaultSettings.setPlayerUuid(uuid.toString());
+		defaultSettings.setLevel(1);
 		return defaultSettings;
 	}
 
