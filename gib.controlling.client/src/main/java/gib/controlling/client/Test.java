@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import gib.controlling.client.mappings.GameStatus;
 import gib.controlling.client.mappings.Level;
 import gib.controlling.client.mappings.PlayerRequest;
+import gib.controlling.client.setup.Params;
 
 public class Test {
 	public static void main(String[] args) {

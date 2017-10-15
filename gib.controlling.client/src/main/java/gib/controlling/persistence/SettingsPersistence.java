@@ -8,8 +8,8 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 
-import gib.controlling.client.Params;
 import gib.controlling.client.mappings.Settings;
+import gib.controlling.client.setup.Params;
 import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class SettingsPersistence {
@@ -41,14 +41,10 @@ public class SettingsPersistence {
 		return localSettings;
 	}
 
-	public Settings loadCloudSettings() {
+	public Settings loadCloudSettings() throws IOException {
 		byte[] settingsByteArray = null;
-		try {
-			settingsByteArray = cloudPersistence
-					.read(Paths.get(localSettings.getPlayerGroup2Digits() + "_" + SETTINGS_PATH));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		settingsByteArray = cloudPersistence
+				.read(Paths.get(localSettings.getPlayerGroup2Digits() + "_" + SETTINGS_PATH));
 		cloudSettings = new Gson().fromJson(new String(settingsByteArray), Settings.class);
 		return cloudSettings;
 	}
@@ -100,6 +96,17 @@ public class SettingsPersistence {
 
 	public void setCloudSettings(Settings cloudSettings) {
 		this.cloudSettings = cloudSettings;
+	}
+
+	public boolean validateSettings() {
+		try {
+			if (!loadCloudSettings().equals(getLocalSettings())) {
+				return false;
+			}
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
 	}
 
 }

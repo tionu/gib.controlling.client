@@ -16,9 +16,13 @@ public class Settings {
 	@Expose
 	private int playerGroup;
 
+	@SerializedName("level")
+	@Expose
+	private int level;
+
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(playerUuid).append(playerGroup).toHashCode();
+		return new HashCodeBuilder().append(playerUuid).append(playerGroup).append(level).toHashCode();
 	}
 
 	@Override
