@@ -20,11 +20,10 @@ import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 public class GameSetup {
 
 	private PersistenceProvider cloudPersistence;
-	private SettingsPersistence settingsPersistence;
+	private SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
 
 	public GameSetup() {
 		cloudPersistence = new ZohoPersistenceProvider(Params.ZOHO_AUTH_TOKEN.toString());
-		settingsPersistence = new SettingsPersistence();
 	}
 
 	public void createGame() {

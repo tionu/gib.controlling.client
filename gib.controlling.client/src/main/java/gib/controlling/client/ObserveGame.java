@@ -8,14 +8,22 @@ import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.SettingsPersistence;
 
 public class ObserveGame implements Runnable, Observer {
-	private SettingsPersistence settingsPersistence;
+	private static ObserveGame instance;
+	
+	private SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
 	private long gameChanged;
 	private LevelChangeObservable levelObservable;
 
-	public ObserveGame(SettingsPersistence settingsPersistence) {
-		this.settingsPersistence = settingsPersistence;
+	private ObserveGame() {
 		gameChanged = 0;
-		levelObservable = new LevelChangeObservable(this.settingsPersistence);
+		levelObservable = new LevelChangeObservable();
+	}
+
+	public static ObserveGame getInstance() {
+		if (instance == null) {
+			instance = new ObserveGame();
+		}
+		return instance;
 	}
 
 	public void run() {
@@ -35,7 +43,7 @@ public class ObserveGame implements Runnable, Observer {
 			FileTransfer.uploadFile(
 					Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
 		} else {
-			new ObserveLevel(settingsPersistence).changeLevel(level);
+			ObserveLevel.getInstance().changeLevel(level);
 		}
 		gameChanged = System.currentTimeMillis();
 	}

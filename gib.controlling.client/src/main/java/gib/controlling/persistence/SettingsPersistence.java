@@ -16,16 +16,23 @@ public class SettingsPersistence {
 
 	public static final Path SETTINGS_PATH = Paths.get("settings.json");
 
+	private static SettingsPersistence instance;
 	PersistenceProvider cloudPersistence;
 	private Settings localSettings;
 	private Settings cloudSettings;
 
-	public SettingsPersistence() {
+	private SettingsPersistence() {
 		cloudPersistence = new ZohoPersistenceProvider(Params.ZOHO_AUTH_TOKEN.toString());
 	}
 
-	public Settings loadLocalSettings() {
+	public static SettingsPersistence getInstance() {
+		if (instance == null) {
+			instance = new SettingsPersistence();
+		}
+		return instance;
+	}
 
+	public Settings loadLocalSettings() {
 		if (!Files.exists(SETTINGS_PATH)) {
 			localSettings = createDefaultLocalSettings();
 			return localSettings;

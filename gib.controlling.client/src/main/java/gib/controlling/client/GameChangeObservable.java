@@ -14,19 +14,18 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
-public class GameChangeObservable extends Observable implements Runnable, Observer {
+import gib.controlling.client.ObserveLevel.State;
 
-	public static enum State {
-		OBSERVE, PAUSED;
-	}
+public class GameChangeObservable extends Observable implements Runnable, Observer {
 
 	private Path pathToObserve;
 	private Set<String> observeFilenames;
-	private GameChangeObservable.State state;
+	private State levelChangerState;
+	private ObserveLevel observeLevel;
 
 	public GameChangeObservable(Path pathToObserve) {
 		this.pathToObserve = pathToObserve;
-		this.state = GameChangeObservable.State.OBSERVE;
+		this.levelChangerState = State.IDLE;
 		observeFilenames = new HashSet<String>();
 	}
 
@@ -56,7 +55,7 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 				return;
 			}
 
-			if (state != GameChangeObservable.State.OBSERVE) {
+			if (levelChangerState != State.IDLE) {
 				continue;
 			}
 
@@ -85,11 +84,13 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 	}
 
 	public void run() {
+		observeLevel = ObserveLevel.getInstance();
+		observeLevel.addObserver(this);
 		startDirectoryWatcher();
 	}
 
 	public void update(Observable o, Object arg) {
-		state = (GameChangeObservable.State) arg;
+		levelChangerState = (State) arg;
 	}
 
 }

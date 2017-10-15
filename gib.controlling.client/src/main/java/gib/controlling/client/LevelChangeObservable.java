@@ -17,11 +17,10 @@ public class LevelChangeObservable extends Observable implements Runnable {
 
 	public static final int POLLING_INTERVALL_LEVEL_CHANGE = 10;
 
-	private SettingsPersistence settingsPersistence;
+	private SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
 	private PersistenceProvider cloudPersistence;
 
-	public LevelChangeObservable(SettingsPersistence settingsPersistence) {
-		this.settingsPersistence = settingsPersistence;
+	public LevelChangeObservable() {
 		cloudPersistence = new ZohoPersistenceProvider(Params.ZOHO_AUTH_TOKEN.toString());
 	}
 

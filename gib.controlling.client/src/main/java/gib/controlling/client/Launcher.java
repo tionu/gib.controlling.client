@@ -1,6 +1,7 @@
 package gib.controlling.client;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import gib.controlling.client.setup.Params;
@@ -11,10 +12,11 @@ import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class Launcher {
 
+	private static Path APP_PATH = Paths.get("Klima.exe");
 	private static PersistenceProvider cloudPersistence = new ZohoPersistenceProvider(
 			Params.ZOHO_AUTH_TOKEN.toString());
-	private static SettingsPersistence settingsPersistence = new SettingsPersistence();
-	private static LevelChangeObservable levelObservable = new LevelChangeObservable(settingsPersistence);
+	private static SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
+	private static LevelChangeObservable levelObservable = new LevelChangeObservable();
 
 	public static void main(String[] args) {
 
@@ -40,13 +42,24 @@ public class Launcher {
 		}
 
 		updateGameFiles();
-		ObserveGame observeGame = new ObserveGame(settingsPersistence);
+		ObserveGame observeGame = ObserveGame.getInstance();
 		new Thread(observeGame).start();
-		ObserveLevel observeLevel = new ObserveLevel(settingsPersistence);
+		ObserveLevel observeLevel = ObserveLevel.getInstance();
 		new Thread(observeLevel).start();
 
-		System.out.println("Game ready");
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				Runtime runTime = Runtime.getRuntime();
+				try {
+					runTime.exec("taskkill /F /IM " + APP_PATH.getFileName().toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 
+		AppControl appControl = new AppControl(APP_PATH.toString());
+		new Thread(appControl).start();
 	}
 
 	private static boolean checkResetGame() {
@@ -61,7 +74,7 @@ public class Launcher {
 			FileTransfer.uploadFile(
 					Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
 		} else {
-			new ObserveLevel(settingsPersistence).changeLevel(level);
+			ObserveLevel.getInstance().changeLevel(level);
 		}
 	}
 

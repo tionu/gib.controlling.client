@@ -9,10 +9,23 @@ import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.SettingsPersistence;
 
 public class ObserveLevel extends Observable implements Runnable, Observer {
-	private SettingsPersistence settingsPersistence;
 
-	public ObserveLevel(SettingsPersistence settingsPersistence) {
-		this.settingsPersistence = settingsPersistence;
+	public static enum State {
+		CHANGING, IDLE;
+	}
+
+	private static ObserveLevel instance;
+
+	private SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
+
+	private ObserveLevel() {
+	}
+
+	public static ObserveLevel getInstance() {
+		if (instance == null) {
+			instance = new ObserveLevel();
+		}
+		return instance;
 	}
 
 	public void update(Observable o, Object arg) {
@@ -21,7 +34,7 @@ public class ObserveLevel extends Observable implements Runnable, Observer {
 
 	public void changeLevel(int level) {
 		setChanged();
-		notifyObservers(GameChangeObservable.State.PAUSED);
+		notifyObservers(State.CHANGING);
 		FileTransfer.downloadFile(
 				Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
 		FileTransfer.downloadFile(Paths.get("SL.DAT"));
@@ -35,11 +48,11 @@ public class ObserveLevel extends Observable implements Runnable, Observer {
 			e.printStackTrace();
 		}
 		setChanged();
-		notifyObservers(GameChangeObservable.State.OBSERVE);
+		notifyObservers(State.IDLE);
 	}
 
 	public void run() {
-		LevelChangeObservable levelObserver = new LevelChangeObservable(settingsPersistence);
+		LevelChangeObservable levelObserver = new LevelChangeObservable();
 		levelObserver.addObserver(this);
 		new Thread(levelObserver).start();
 	}
