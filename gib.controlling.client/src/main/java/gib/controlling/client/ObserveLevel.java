@@ -16,12 +16,16 @@ public class ObserveLevel extends Observable implements Runnable, Observer {
 	}
 
 	public void update(Observable o, Object arg) {
+		changeLevel((Integer) arg);
+	}
+
+	public void changeLevel(int level) {
 		setChanged();
 		notifyObservers(GameChangeObservable.State.PAUSED);
 		FileTransfer.downloadFile(
 				Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
 		FileTransfer.downloadFile(Paths.get("SL.DAT"));
-		settingsPersistence.getLocalSettings().setLevel((Integer) arg);
+		settingsPersistence.getLocalSettings().setLevel(level);
 		settingsPersistence.saveLocalSettings();
 		settingsPersistence.setCloudSettings(settingsPersistence.getLocalSettings());
 		settingsPersistence.saveCloudSettings();

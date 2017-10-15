@@ -29,12 +29,13 @@ public class ObserveGame implements Runnable, Observer {
 		if ((System.currentTimeMillis() - gameChanged) < 1000) {
 			return;
 		}
-		boolean levelChanged = levelObservable.getLevel() != settingsPersistence.getLocalSettings().getLevel();
+		int level = levelObservable.getLevel();
+		boolean levelChanged = level != settingsPersistence.getLocalSettings().getLevel();
 		if (!levelChanged) {
 			FileTransfer.uploadFile(
 					Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
 		} else {
-			System.out.println("Level changed.");
+			new ObserveLevel(settingsPersistence).changeLevel(level);
 		}
 		gameChanged = System.currentTimeMillis();
 	}
