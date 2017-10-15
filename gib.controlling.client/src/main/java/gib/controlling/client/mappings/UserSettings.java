@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Settings {
+public class UserSettings {
 
 	@SerializedName("playerUuid")
 	@Expose
@@ -30,10 +30,10 @@ public class Settings {
 		if (other == this) {
 			return true;
 		}
-		if ((other instanceof Settings) == false) {
+		if ((other instanceof UserSettings) == false) {
 			return false;
 		}
-		Settings rhs = ((Settings) other);
+		UserSettings rhs = ((UserSettings) other);
 		return new EqualsBuilder().append(playerUuid, rhs.playerUuid).append(playerGroup, rhs.playerGroup).isEquals();
 	}
 

@@ -5,6 +5,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 
+import gib.controlling.client.setup.GameFiles;
+
 public class AppControl implements Runnable, Observer {
 
 	public static enum State {
@@ -48,16 +50,20 @@ public class AppControl implements Runnable, Observer {
 	}
 
 	public void run() {
+		state = State.RUNNING;
 		startApp();
 	}
 
 	private void startApp() {
 		try {
-			app = new ProcessBuilder(appPath).start();
-			state = State.RUNNING;
+			ProcessBuilder processBuilder = new ProcessBuilder(appPath);
+			processBuilder.directory(GameFiles.getWorkingDirectory().toFile());
+			app = processBuilder.start();
 			app.waitFor();
 			if (state != State.RESTART) {
 				System.exit(0);
+			} else {
+				state = State.RUNNING;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

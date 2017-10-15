@@ -36,7 +36,7 @@ public class GameSetup {
 	private void resetLocalGameFiles() {
 		try {
 			for (Path filePath : GameFiles.getFilePaths()) {
-				Files.deleteIfExists(filePath);
+				Files.deleteIfExists(GameFiles.getWorkingDirectory().resolve(filePath));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

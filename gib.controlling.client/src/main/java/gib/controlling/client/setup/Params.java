@@ -1,7 +1,7 @@
 package gib.controlling.client.setup;
 
 public enum Params {
-	ZOHO_AUTH_TOKEN(""),;
+	ZOHO_AUTH_TOKEN("");
 
 	private final String text;
 

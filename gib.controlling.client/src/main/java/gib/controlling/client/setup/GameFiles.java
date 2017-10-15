@@ -7,6 +7,8 @@ import java.util.List;
 
 public final class GameFiles {
 
+	private static Path APP_PATH = Paths.get("data/Klima.exe");
+
 	private static List<Path> filePaths = new ArrayList<Path>();
 
 	static {
@@ -31,6 +33,18 @@ public final class GameFiles {
 
 	public static List<Path> getFilePaths() {
 		return filePaths;
+	}
+
+	public static Path getAppPath() {
+		return APP_PATH;
+	}
+
+	public static Path getWorkingDirectory() {
+		if (APP_PATH.getParent() != null) {
+			return APP_PATH.getParent();
+		} else {
+			return Paths.get("");
+		}
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import gib.controlling.client.setup.GameFiles;
 import gib.controlling.client.setup.Params;
 import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
@@ -16,7 +17,7 @@ public class FileTransfer {
 		byte[] fileData = null;
 		try {
 			fileData = cloudPersistence.read(filePath);
-			Files.write(filePath, fileData);
+			Files.write(GameFiles.getWorkingDirectory().resolve(filePath), fileData);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -25,7 +26,7 @@ public class FileTransfer {
 	public static void uploadFile(Path filePath) {
 		byte[] fileData;
 		try {
-			fileData = Files.readAllBytes(filePath);
+			fileData = Files.readAllBytes(GameFiles.getWorkingDirectory().resolve(filePath));
 			cloudPersistence.write(filePath, fileData);
 		} catch (IOException e1) {
 			e1.printStackTrace();

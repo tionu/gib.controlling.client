@@ -8,18 +8,19 @@ import java.util.UUID;
 
 import com.google.gson.Gson;
 
-import gib.controlling.client.mappings.Settings;
+import gib.controlling.client.mappings.UserSettings;
+import gib.controlling.client.setup.GameFiles;
 import gib.controlling.client.setup.Params;
 import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class SettingsPersistence {
 
-	public static final Path SETTINGS_PATH = Paths.get("settings.json");
+	public static final Path SETTINGS_PATH = Paths.get("user.json");
 
 	private static SettingsPersistence instance;
 	PersistenceProvider cloudPersistence;
-	private Settings localSettings;
-	private Settings cloudSettings;
+	private UserSettings localSettings;
+	private UserSettings cloudSettings;
 
 	private SettingsPersistence() {
 		cloudPersistence = new ZohoPersistenceProvider(Params.ZOHO_AUTH_TOKEN.toString());
@@ -32,38 +33,38 @@ public class SettingsPersistence {
 		return instance;
 	}
 
-	public Settings loadLocalSettings() {
-		if (!Files.exists(SETTINGS_PATH)) {
+	public UserSettings loadLocalSettings() {
+		if (!Files.exists(GameFiles.getWorkingDirectory().resolve(SETTINGS_PATH))) {
 			localSettings = createDefaultLocalSettings();
 			return localSettings;
 		}
 
 		byte[] settingsByteArray = new byte[0];
 		try {
-			settingsByteArray = Files.readAllBytes(SETTINGS_PATH);
+			settingsByteArray = Files.readAllBytes(GameFiles.getWorkingDirectory().resolve(SETTINGS_PATH));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		localSettings = new Gson().fromJson(new String(settingsByteArray), Settings.class);
+		localSettings = new Gson().fromJson(new String(settingsByteArray), UserSettings.class);
 		return localSettings;
 	}
 
-	public Settings loadCloudSettings() throws IOException {
+	public UserSettings loadCloudSettings() throws IOException {
 		byte[] settingsByteArray = null;
 		settingsByteArray = cloudPersistence
 				.read(Paths.get(localSettings.getPlayerGroup2Digits() + "_" + SETTINGS_PATH));
-		cloudSettings = new Gson().fromJson(new String(settingsByteArray), Settings.class);
+		cloudSettings = new Gson().fromJson(new String(settingsByteArray), UserSettings.class);
 		return cloudSettings;
 	}
 
-	public Settings createDefaultLocalSettings() {
+	public UserSettings createDefaultLocalSettings() {
 		localSettings = getDefaultSettings();
 		saveLocalSettings();
 		return localSettings;
 	}
 
-	private Settings getDefaultSettings() {
-		Settings defaultSettings = new Settings();
+	private UserSettings getDefaultSettings() {
+		UserSettings defaultSettings = new UserSettings();
 		UUID uuid = UUID.randomUUID();
 		defaultSettings.setPlayerUuid(uuid.toString());
 		defaultSettings.setLevel(1);
@@ -73,7 +74,7 @@ public class SettingsPersistence {
 	public void saveLocalSettings() {
 		String settingsJson = new Gson().toJson(localSettings);
 		try {
-			Files.write(SETTINGS_PATH, settingsJson.getBytes());
+			Files.write(GameFiles.getWorkingDirectory().resolve(SETTINGS_PATH), settingsJson.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -90,19 +91,19 @@ public class SettingsPersistence {
 		}
 	}
 
-	public Settings getLocalSettings() {
+	public UserSettings getLocalSettings() {
 		return localSettings;
 	}
 
-	public void setLocalSettings(Settings localSettings) {
+	public void setLocalSettings(UserSettings localSettings) {
 		this.localSettings = localSettings;
 	}
 
-	public Settings getCloudSettings() {
+	public UserSettings getCloudSettings() {
 		return cloudSettings;
 	}
 
-	public void setCloudSettings(Settings cloudSettings) {
+	public void setCloudSettings(UserSettings cloudSettings) {
 		this.cloudSettings = cloudSettings;
 	}
 
