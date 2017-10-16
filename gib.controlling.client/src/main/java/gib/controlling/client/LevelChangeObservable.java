@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 
+import gib.controlling.client.exceptions.CloudConnectionException;
 import gib.controlling.client.mappings.Level;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.PersistenceProvider;
@@ -29,11 +30,17 @@ public class LevelChangeObservable extends Observable implements Runnable {
 	private void startLevelWatcher() {
 		log.debug("start level watcher...");
 		while (true) {
-			int level = getLevel();
-			if (level != settingsPersistence.getLocalSettings().getLevel()) {
-				log.info("new level: " + level);
-				setChanged();
-				notifyObservers(level);
+			log.debug("check level...");
+			int level;
+			try {
+				level = getLevel();
+				if (level != settingsPersistence.getLocalSettings().getLevel()) {
+					log.info("new level: " + level);
+					setChanged();
+					notifyObservers(level);
+				}
+			} catch (Exception e1) {
+				log.debug("offline - no cloud connection...");
 			}
 
 			try {
@@ -48,14 +55,16 @@ public class LevelChangeObservable extends Observable implements Runnable {
 		startLevelWatcher();
 	}
 
-	public int getLevel() {
-		byte[] levelByteArray = null;
+	public int getLevel() throws CloudConnectionException {
+		byte[] levelByteArray = new byte[0];
 		try {
 			levelByteArray = cloudPersistence.read(Paths.get("level.json"));
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		Level level = new Gson().fromJson(new String(levelByteArray), Level.class);
+		if (level == null) {
+			throw new CloudConnectionException();
+		}
 		return level.getLevel();
 	}
 

@@ -1,6 +1,5 @@
 package gib.controlling.client;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -10,19 +9,13 @@ import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.WindowConstants;
-import javax.swing.text.DefaultCaret;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import gib.controlling.client.exceptions.CloudConnectionException;
+import gib.controlling.client.mappings.GameState.State;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.PersistenceProvider;
@@ -37,6 +30,7 @@ public class Launcher {
 	private static Logger log = Logger.getLogger(Launcher.class.getName());
 
 	public static void main(String[] args) {
+
 		Properties props = new Properties();
 		try {
 			props.load(Launcher.class.getResourceAsStream("setup/log4j.properties"));
@@ -45,10 +39,27 @@ public class Launcher {
 		}
 		PropertyConfigurator.configure(props);
 
-		JFrame frame = new JFrame();
-		GuiAppender guiAppender = new GuiAppender(gui(frame));
+		GuiAppender guiAppender = GuiAppender.getInstance();
 		LogManager.getRootLogger().addAppender(guiAppender);
 		log.info("loading...");
+
+		log.info("get game state...");
+		GameStateWatcher gameStateProvider = new GameStateWatcher();
+		new Thread(gameStateProvider).start();
+
+		while (true) {
+			if (GameStateProvider.getGameState() == State.OFFLINE) {
+				try {
+					TimeUnit.MILLISECONDS.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} else {
+				break;
+			}
+		}
+
+		log.info("game state: " + GameStateProvider.getGameState().toString());
 
 		Path workingDirectory = AppProperties.getWorkingDirectory();
 		if (!Files.exists(workingDirectory)) {
@@ -58,7 +69,8 @@ public class Launcher {
 
 		if (!Files.exists(AppProperties.APP_PATH)) {
 			URL source = Launcher.class.getResource("setup/play.bin");
-			File destination = new File(AppProperties.getWorkingDirectory().resolve(AppProperties.APP_PATH.getFileName()).toString());
+			File destination = new File(
+					AppProperties.getWorkingDirectory().resolve(AppProperties.APP_PATH.getFileName()).toString());
 			try {
 				FileUtils.copyURLToFile(source, destination);
 			} catch (IOException e) {
@@ -69,6 +81,43 @@ public class Launcher {
 		settingsPersistence.loadLocalSettings();
 
 		boolean isNewGame = false;
+		if (GameStateProvider.getGameState() == State.OPEN_FOR_NEW_PLAYERS) {
+			isNewGame = checkGameSetup(isNewGame);
+		}
+
+		if (!settingsPersistence.validateSettings()) {
+			log.warn("settings invalid - delete \"" + AppProperties.getWorkingDirectory() + "\\"
+					+ AppProperties.USER_SETTINGS_FILENAME + "\" to reset game. ");
+			while (true) {
+				try {
+					TimeUnit.SECONDS.sleep(15);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				System.exit(1);
+			}
+		}
+
+		if (!isNewGame && GameStateProvider.getGameState() != State.FINISHED) {
+			log.info("update game files...");
+			updateGameFiles();
+		}
+
+		startApp();
+
+		if (GameStateProvider.getGameState() != State.FINISHED) {
+			ObserveGame observeGame = ObserveGame.getInstance();
+			log.debug("start observing local game...");
+			new Thread(observeGame).start();
+
+			log.debug("start observing level change...");
+			ObserveLevel observeLevel = ObserveLevel.getInstance();
+			new Thread(observeLevel).start();
+		}
+
+	}
+
+	private static boolean checkGameSetup(boolean isNewGame) {
 		if (checkResetGame()) {
 			log.info("reset game...");
 			try {
@@ -86,35 +135,13 @@ public class Launcher {
 			new GameSetup().createGame();
 			isNewGame = true;
 		}
+		return isNewGame;
+	}
 
-		if (!settingsPersistence.validateSettings()) {
-			log.warn("settings invalid - delete \"" + AppProperties.getWorkingDirectory() + "\\"
-					+ AppProperties.USER_SETTINGS_FILENAME + "\" to reset game. ");
-			while (true) {
-				try {
-					TimeUnit.DAYS.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		if (!isNewGame) {
-			log.info("update game files...");
-			updateGameFiles();
-		}
-
+	private static void startApp() {
 		log.info("starting app: " + AppProperties.APP_PATH.getFileName().toString());
 		AppControl appControl = new AppControl(AppProperties.APP_PATH.toString());
 		new Thread(appControl).start();
-
-		ObserveGame observeGame = ObserveGame.getInstance();
-		log.debug("start observing local game...");
-		new Thread(observeGame).start();
-
-		log.debug("start observing level change...");
-		ObserveLevel observeLevel = ObserveLevel.getInstance();
-		new Thread(observeLevel).start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -126,13 +153,6 @@ public class Launcher {
 				}
 			}
 		});
-
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		frame.setVisible(false);
 	}
 
 	private static boolean checkResetGame() {
@@ -141,39 +161,22 @@ public class Launcher {
 	}
 
 	private static void updateGameFiles() {
-		int level = levelObservable.getLevel();
-		boolean levelChanged = level != settingsPersistence.getLocalSettings().getLevel();
-		if (!levelChanged) {
-			log.info("level unchanged - sync current game state...");
-			FileTransfer.uploadFileWithTimeStamp(
-					Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
-		} else {
-			log.info("level changed: " + level + " - download new level data...");
-			ObserveLevel.getInstance().changeLevel(level);
+		int level;
+		try {
+			level = levelObservable.getLevel();
+			boolean levelChanged = level != settingsPersistence.getLocalSettings().getLevel();
+			if (!levelChanged) {
+				log.info("level unchanged - sync current game state...");
+				FileTransfer.uploadFileWithTimeStamp(
+						Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
+			} else {
+				log.info("level changed: " + level + " - download new level data...");
+				ObserveLevel.getInstance().changeLevel(level);
+			}
+		} catch (CloudConnectionException e) {
+			log.debug("offline - no cloud connection...");
 		}
-	}
 
-	private static JTextArea gui(JFrame frame) {
-		frame.setTitle("KlimaOnline");
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		JPanel panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		JTextArea textArea = new JTextArea(6, 30);
-		textArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		textArea.setSelectedTextColor(Color.BLUE);
-		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);
-		DefaultCaret caret = (DefaultCaret) textArea.getCaret();
-		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		JScrollPane scrollPane = new JScrollPane(textArea);
-		scrollPane.setBorder(BorderFactory.createEmptyBorder());
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		panel.add(scrollPane);
-		frame.add(panel);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-		return textArea;
 	}
 
 }

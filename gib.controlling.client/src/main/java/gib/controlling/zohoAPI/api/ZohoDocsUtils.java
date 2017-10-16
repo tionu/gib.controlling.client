@@ -33,6 +33,10 @@ public abstract class ZohoDocsUtils {
 		}
 
 		directoryListing = filesApi.getDirectoryListing(folderId);
+
+		if (directoryListing == null) {
+			return "";
+		}
 		for (ZohoFile file : directoryListing.getFiles()) {
 			if (file.getDocName().equals(path.getFileName().toString())) {
 				return file.getDocId();
@@ -69,6 +73,10 @@ public abstract class ZohoDocsUtils {
 			}
 		}
 		directoryListing = filesApi.getDirectoryListing(folderId);
+
+		if (directoryListing == null) {
+			return "";
+		}
 
 		for (ZohoFolder folder : directoryListing.getFolders()) {
 			if (folder.getFolderName().equals(path.getFileName().toString())) {

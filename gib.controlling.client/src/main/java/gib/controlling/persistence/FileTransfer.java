@@ -30,6 +30,17 @@ public class FileTransfer {
 		}
 	}
 
+	public static void downloadFile(Path sourceFilePath, Path destinationFilePath) {
+		log.debug("download file...");
+		byte[] fileData = null;
+		try {
+			fileData = cloudPersistence.read(sourceFilePath);
+			Files.write(AppProperties.getWorkingDirectory().resolve(destinationFilePath), fileData);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void uploadFile(Path filePath) {
 		log.debug("upload file...");
 		byte[] fileData;

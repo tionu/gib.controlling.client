@@ -11,9 +11,15 @@ public final class AppProperties {
 
 	public static final Path USER_SETTINGS_FILENAME = Paths.get("user.json");
 
-	public static final Path UPLOAD_LOG_FILENAME = Paths.get("lastUpload.json");
+	public static final Path UPLOAD_LOG_FILENAME = Paths.get("last_upload.json");
 
-	public static final int POLLING_INTERVALL_LEVEL_CHANGE = 10;
+	public static final Path GAME_STATE_FILENAME = Paths.get("game_state.json");
+
+	public static final Path NEW_GAME_FILES_CLOUD_PATH = Paths.get("new_game/");
+
+	public static final int POLLING_INTERVALL_LEVEL_CHANGE = 4;
+
+	public static final int POLLING_INTERVALL_GAME_STATE = 6;
 
 	public static final String ZOHO_AUTH_TOKEN = "";
 

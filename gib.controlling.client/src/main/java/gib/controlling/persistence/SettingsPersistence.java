@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.google.gson.Gson;
 
 import gib.controlling.client.LevelChangeObservable;
+import gib.controlling.client.exceptions.CloudConnectionException;
 import gib.controlling.client.mappings.UserSettings;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.zohoAPI.ZohoPersistenceProvider;
@@ -65,8 +66,12 @@ public class SettingsPersistence {
 		UserSettings defaultSettings = new UserSettings();
 		UUID uuid = UUID.randomUUID();
 		defaultSettings.setPlayerUuid(uuid.toString());
-		int currentLevel = new LevelChangeObservable().getLevel();
-		defaultSettings.setLevel(currentLevel);
+		int currentLevel;
+		try {
+			currentLevel = new LevelChangeObservable().getLevel();
+			defaultSettings.setLevel(currentLevel);
+		} catch (CloudConnectionException e) {
+		}
 		return defaultSettings;
 	}
 

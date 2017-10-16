@@ -6,6 +6,7 @@ import java.util.Observer;
 
 import org.apache.log4j.Logger;
 
+import gib.controlling.client.exceptions.CloudConnectionException;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.SettingsPersistence;
@@ -44,16 +45,22 @@ public class ObserveGame implements Runnable, Observer {
 			return;
 		}
 		log.info("game state changed. check current level...");
-		int level = levelObservable.getLevel();
-		boolean levelChanged = level != settingsPersistence.getLocalSettings().getLevel();
-		if (!levelChanged) {
-			log.info("level unchanged - sync current game state...");
-			FileTransfer.uploadFileWithTimeStamp(
-					Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
-		} else {
-			log.info("level changed: " + level + " - download new level data...");
-			ObserveLevel.getInstance().changeLevel(level);
+		int level;
+		try {
+			level = levelObservable.getLevel();
+			boolean levelChanged = level != settingsPersistence.getLocalSettings().getLevel();
+			if (!levelChanged) {
+				log.info("level unchanged - sync current game state...");
+				FileTransfer.uploadFileWithTimeStamp(
+						Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
+			} else {
+				log.info("level changed: " + level + " - download new level data...");
+				ObserveLevel.getInstance().changeLevel(level);
+			}
+		} catch (CloudConnectionException e) {
+			log.debug("offline - no cloud connection...");
 		}
+
 		gameChanged = System.currentTimeMillis();
 	}
 

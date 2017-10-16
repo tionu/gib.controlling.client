@@ -52,7 +52,6 @@ public class RetrieveFileFolderList {
 			ZohoDirectoryListing directoyListing = new Gson().fromJson(builder.toString(), ZohoDirectoryListing.class);
 			return directoyListing;
 		} catch (Exception ee) {
-			ee.printStackTrace();
 		} finally {
 			if (reader != null) {
 				try {

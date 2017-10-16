@@ -37,7 +37,6 @@ public class DownloadFile extends ZohoDocsUtils {
 			InputStream is = response.getEntity().getContent();
 			return IOUtils.toByteArray(is);
 		} catch (Exception ee) {
-			ee.printStackTrace();
 		}
 		return null;
 	}

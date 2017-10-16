@@ -51,9 +51,9 @@ public class GameSetup {
 		log.info("get new game files...");
 		Path playerFilePath = Paths
 				.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT");
-		FileTransfer.downloadFile(playerFilePath);
-		FileTransfer.downloadFile(Paths.get("SL.DAT"));
-
+		FileTransfer.downloadFile(AppProperties.NEW_GAME_FILES_CLOUD_PATH.resolve(playerFilePath), playerFilePath);
+		FileTransfer.downloadFile(AppProperties.NEW_GAME_FILES_CLOUD_PATH.resolve(Paths.get("SL.DAT")),
+				Paths.get("SL.DAT"));
 	}
 
 	private void setPlayerGroup() {
