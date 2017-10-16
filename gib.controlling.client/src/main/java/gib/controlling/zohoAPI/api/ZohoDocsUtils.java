@@ -1,6 +1,10 @@
 package gib.controlling.zohoAPI.api;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
+
+import org.apache.log4j.Logger;
 
 import gib.controlling.zohoAPI.api.mappings.ZohoDirectoryListing;
 import gib.controlling.zohoAPI.api.mappings.ZohoFile;
@@ -9,6 +13,11 @@ import gib.controlling.zohoAPI.api.mappings.ZohoFolder;
 public abstract class ZohoDocsUtils {
 
 	protected String authToken;
+	private Logger log;
+
+	public ZohoDocsUtils() {
+		log = Logger.getLogger(ZohoDocsUtils.class.getName());
+	}
 
 	protected String getDocId(Path path) {
 		RetrieveFileFolderList filesApi = new RetrieveFileFolderList(authToken);
@@ -85,6 +94,35 @@ public abstract class ZohoDocsUtils {
 			return true;
 		}
 		return false;
+	}
+
+	public void delete(Path path) throws IOException {
+		log.debug("delete in cloud: " + path.toString());
+		if (existsFolder(path)) {
+			deleteFolder(path);
+		} else {
+			deleteFile(path);
+		}
+	}
+
+	private void deleteFile(Path path) throws IOException {
+		log.debug("delete file in cloud: " + path.toString());
+		String docId = getDocId(path);
+		if (docId == "") {
+			throw new FileNotFoundException();
+		}
+		DeleteFile deleteFileApi = new DeleteFile(authToken);
+		deleteFileApi.delete(docId);
+	}
+
+	private void deleteFolder(Path path) throws IOException {
+		log.debug("delete folder in cloud: " + path.toString());
+		String folderId = getFolderId(path);
+		if (folderId == "") {
+			throw new FileNotFoundException();
+		}
+		DeleteFolder deleteFolderApi = new DeleteFolder(authToken);
+		deleteFolderApi.delete(folderId);
 	}
 
 }

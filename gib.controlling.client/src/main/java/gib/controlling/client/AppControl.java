@@ -5,7 +5,9 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 
-import gib.controlling.client.setup.GameFiles;
+import org.apache.log4j.Logger;
+
+import gib.controlling.client.setup.AppProperties;
 
 public class AppControl implements Runnable, Observer {
 
@@ -16,15 +18,18 @@ public class AppControl implements Runnable, Observer {
 	private String appPath;
 	private Process app;
 	private State state;
+	private Logger log;
 
 	public AppControl(String appPath) {
 		this.appPath = appPath;
 		state = State.IDLE;
 		ObserveLevel.getInstance().addObserver(this);
 		app = null;
+		log = Logger.getLogger(AppControl.class.getName());
 	}
 
 	public void restartApp() {
+		log.info("restart app.");
 		state = State.RESTART;
 		if (app != null) {
 			app.destroy();
@@ -57,16 +62,19 @@ public class AppControl implements Runnable, Observer {
 	private void startApp() {
 		try {
 			ProcessBuilder processBuilder = new ProcessBuilder(appPath);
-			processBuilder.directory(GameFiles.getWorkingDirectory().toFile());
+			processBuilder.directory(AppProperties.getWorkingDirectory().toFile());
 			app = processBuilder.start();
 			app.waitFor();
 			if (state != State.RESTART) {
+				log.debug("shutting down...");
 				System.exit(0);
 			} else {
 				state = State.RUNNING;
 			}
 		} catch (IOException e) {
+			log.error("could not start app.");
 			e.printStackTrace();
+			System.exit(1);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

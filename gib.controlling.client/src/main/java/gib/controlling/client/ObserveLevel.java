@@ -5,6 +5,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.SettingsPersistence;
 
@@ -17,8 +19,10 @@ public class ObserveLevel extends Observable implements Runnable, Observer {
 	private static ObserveLevel instance;
 
 	private SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
+	private Logger log;
 
 	private ObserveLevel() {
+		log = Logger.getLogger(ObserveLevel.class.getName());
 	}
 
 	public static ObserveLevel getInstance() {
@@ -33,6 +37,7 @@ public class ObserveLevel extends Observable implements Runnable, Observer {
 	}
 
 	public void changeLevel(int level) {
+		log.debug("change level: " + level);
 		setChanged();
 		notifyObservers(State.CHANGING);
 		FileTransfer.downloadFile(

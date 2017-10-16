@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -31,11 +32,15 @@ public class UploadFile extends ZohoDocsUtils {
 		}
 
 		if (existsFile(path)) {
-			update(path, bytes);
+			if (FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("json")) {
+				update(path, bytes);
+			} else {
+				delete(path);
+				create(path, bytes);
+			}
 		} else {
 			create(path, bytes);
 		}
-
 	}
 
 	private void update(Path path, byte[] bytes) throws IOException {
@@ -60,7 +65,6 @@ public class UploadFile extends ZohoDocsUtils {
 		entityBuilder.addPart("filename", new StringBody(path.getFileName().toString(), ContentType.TEXT_PLAIN));
 		entityBuilder.addPart("content", new ByteArrayBody(bytes, path.getFileName().toString()));
 		HttpEntity entity = entityBuilder.build();
-
 		URIBuilder uriBuilder;
 		try {
 			uriBuilder = new URIBuilder(UPLOAD_FILE_URL).addParameter("authtoken", authToken);

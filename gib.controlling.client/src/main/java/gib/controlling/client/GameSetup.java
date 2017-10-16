@@ -7,11 +7,12 @@ import java.nio.file.Paths;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import com.google.gson.Gson;
 
 import gib.controlling.client.mappings.PlayerRequest;
-import gib.controlling.client.setup.GameFiles;
-import gib.controlling.client.setup.Params;
+import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.PersistenceProvider;
 import gib.controlling.persistence.SettingsPersistence;
@@ -21,9 +22,11 @@ public class GameSetup {
 
 	private PersistenceProvider cloudPersistence;
 	private SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
+	private Logger log;
 
 	public GameSetup() {
-		cloudPersistence = new ZohoPersistenceProvider(Params.ZOHO_AUTH_TOKEN.toString());
+		cloudPersistence = new ZohoPersistenceProvider(AppProperties.ZOHO_AUTH_TOKEN);
+		log = Logger.getLogger(GameSetup.class.getName());
 	}
 
 	public void createGame() {
@@ -34,9 +37,10 @@ public class GameSetup {
 	}
 
 	private void resetLocalGameFiles() {
+		log.debug("reset local game files...");
 		try {
-			for (Path filePath : GameFiles.getFilePaths()) {
-				Files.deleteIfExists(GameFiles.getWorkingDirectory().resolve(filePath));
+			for (Path filePath : AppProperties.filePaths) {
+				Files.deleteIfExists(AppProperties.getWorkingDirectory().resolve(filePath));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -44,6 +48,7 @@ public class GameSetup {
 	}
 
 	private void getNewGameFiles() {
+		log.info("get new game files...");
 		Path playerFilePath = Paths
 				.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT");
 		FileTransfer.downloadFile(playerFilePath);
@@ -52,6 +57,7 @@ public class GameSetup {
 	}
 
 	private void setPlayerGroup() {
+		log.info("get player group...");
 		long lastPlayerRequest = loadPlayerRequest().getTimestamp();
 		long timestamp = System.currentTimeMillis();
 
@@ -77,7 +83,7 @@ public class GameSetup {
 		do {
 			for (int i = 1; i <= 10; i++) {
 				String groupNumber = String.format("%02d", i);
-				Path groupPath = Paths.get(groupNumber + "_" + SettingsPersistence.SETTINGS_PATH);
+				Path groupPath = Paths.get(groupNumber + "_" + AppProperties.USER_SETTINGS_FILENAME);
 				if (!cloudPersistence.exists(groupPath)) {
 					settingsPersistence.getLocalSettings().setPlayerGroup(i);
 					settingsPersistence.setCloudSettings(settingsPersistence.getLocalSettings());

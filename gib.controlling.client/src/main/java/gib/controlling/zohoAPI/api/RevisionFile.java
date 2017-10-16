@@ -30,7 +30,6 @@ public class RevisionFile extends ZohoDocsUtils {
 		entityBuilder.addPart("filename", new StringBody(path.getFileName().toString(), ContentType.TEXT_PLAIN));
 		entityBuilder.addPart("content", new ByteArrayBody(bytes, path.getFileName().toString()));
 		HttpEntity entity = entityBuilder.build();
-
 		URIBuilder uriBuilder;
 		try {
 			uriBuilder = new URIBuilder(REVISION_FILE_URL).addParameter("authtoken", authToken);

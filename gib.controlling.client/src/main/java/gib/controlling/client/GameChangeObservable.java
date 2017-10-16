@@ -14,6 +14,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import gib.controlling.client.ObserveLevel.State;
 
 public class GameChangeObservable extends Observable implements Runnable, Observer {
@@ -22,11 +24,13 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 	private Set<String> observeFilenames;
 	private State levelChangerState;
 	private ObserveLevel observeLevel;
+	private Logger log;
 
 	public GameChangeObservable(Path pathToObserve) {
 		this.pathToObserve = pathToObserve;
 		this.levelChangerState = State.IDLE;
 		observeFilenames = new HashSet<String>();
+		log = Logger.getLogger(GameChangeObservable.class.getName());
 	}
 
 	public void observe(String filenameToObserve) {
@@ -38,6 +42,7 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 	}
 
 	private void startDirectoryWatcher() {
+		log.debug("start directory watcher...");
 		WatchService watcher = null;
 		WatchKey key;
 		try {
@@ -66,9 +71,11 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 					continue;
 				}
 
+				@SuppressWarnings("unchecked")
 				WatchEvent<Path> ev = (WatchEvent<Path>) event;
 				Path filename = ev.context();
 				if (observeFilenames.contains(filename.toString())) {
+					log.debug("file changed: " + filename.toString());
 					setChanged();
 					notifyObservers(filename.toString());
 				}
@@ -90,7 +97,9 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 	}
 
 	public void update(Observable o, Object arg) {
-		levelChangerState = (State) arg;
+		State state = (State) arg;
+		log.debug("level changer state: " + state.toString());
+		levelChangerState = state;
 	}
 
 }
