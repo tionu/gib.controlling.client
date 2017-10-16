@@ -12,8 +12,8 @@ public class TimeStamp {
 	@Expose
 	private long timeStamp;
 
-	public TimeStamp(long timeStamp) {
-		this.timeStamp = timeStamp;
+	public TimeStamp() {
+		timeStamp = System.currentTimeMillis();
 	}
 
 	@Override

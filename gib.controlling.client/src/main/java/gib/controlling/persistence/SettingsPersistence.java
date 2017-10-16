@@ -49,7 +49,7 @@ public class SettingsPersistence {
 	}
 
 	public UserSettings loadCloudSettings() throws IOException {
-		byte[] settingsByteArray = null;
+		byte[] settingsByteArray = new byte[0];
 		settingsByteArray = cloudPersistence
 				.read(Paths.get(localSettings.getPlayerGroup2Digits() + "_" + AppProperties.USER_SETTINGS_FILENAME));
 		cloudSettings = new Gson().fromJson(new String(settingsByteArray), UserSettings.class);

@@ -14,8 +14,12 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import com.google.gson.Gson;
+
 import gib.controlling.client.exceptions.CloudConnectionException;
 import gib.controlling.client.mappings.GameState.State;
+import gib.controlling.client.mappings.TimeStamp;
+import gib.controlling.client.mappings.TimeStampLog;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.PersistenceProvider;
@@ -98,6 +102,8 @@ public class Launcher {
 			}
 		}
 
+		updateLogInLog();
+
 		if (!isNewGame && GameStateProvider.getGameState() != State.FINISHED) {
 			log.info("update game files...");
 			updateGameFiles();
@@ -106,6 +112,10 @@ public class Launcher {
 		startApp();
 
 		if (GameStateProvider.getGameState() != State.FINISHED) {
+			updateLogOutLog();
+
+			startKeepAliveLog();
+
 			ObserveGame observeGame = ObserveGame.getInstance();
 			log.debug("start observing local game...");
 			new Thread(observeGame).start();
@@ -156,8 +166,8 @@ public class Launcher {
 	}
 
 	private static boolean checkResetGame() {
-		return cloudPersistence
-				.exists(Paths.get(settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + "_reset.json"));
+		return cloudPersistence.exists(Paths.get(settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + "_"
+				+ AppProperties.RESET_GAME_FILENAME));
 	}
 
 	private static void updateGameFiles() {
@@ -177,6 +187,103 @@ public class Launcher {
 			log.debug("offline - no cloud connection...");
 		}
 
+	}
+
+	private static void updateLogInLog() {
+		Thread updateLogInLogThread = new Thread() {
+			public void run() {
+				String groupId = SettingsPersistence.getInstance().getLocalSettings().getPlayerGroup2Digits();
+				byte[] logInLogByteArray = new byte[0];
+				try {
+					logInLogByteArray = cloudPersistence
+							.read(Paths.get(groupId + "_" + AppProperties.LOGIN_LOG_FILENAME));
+				} catch (IOException e) {
+				}
+				TimeStampLog lastLogInLog = new Gson().fromJson(new String(logInLogByteArray), TimeStampLog.class);
+
+				TimeStampLog logInLog;
+				if (lastLogInLog != null) {
+					logInLog = new TimeStampLog(lastLogInLog.getTimeStamps());
+				} else {
+					logInLog = new TimeStampLog();
+				}
+				logInLog.addTimeStamp();
+				String timeStampLogJson = new Gson().toJson(logInLog);
+				try {
+					cloudPersistence.write(Paths.get(groupId + "_" + AppProperties.LOGIN_LOG_FILENAME),
+							timeStampLogJson.getBytes());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		updateLogInLogThread.start();
+	}
+
+	private static void updateLogOutLog() {
+		Thread updateLogOutLogThread = new Thread() {
+			public void run() {
+				String groupId = SettingsPersistence.getInstance().getLocalSettings().getPlayerGroup2Digits();
+				byte[] logOutLogByteArray = new byte[0];
+				try {
+					logOutLogByteArray = cloudPersistence
+							.read(Paths.get(groupId + "_" + AppProperties.LOGOUT_LOG_FILENAME));
+				} catch (IOException e) {
+				}
+				TimeStampLog lastLogOutLog = new Gson().fromJson(new String(logOutLogByteArray), TimeStampLog.class);
+
+				TimeStampLog logOutLog;
+				if (lastLogOutLog != null) {
+					logOutLog = new TimeStampLog(lastLogOutLog.getTimeStamps());
+				} else {
+					logOutLog = new TimeStampLog();
+				}
+
+				byte[] lastKeepAliveByteArray = new byte[0];
+				try {
+					lastKeepAliveByteArray = cloudPersistence
+							.read(Paths.get(groupId + "_" + AppProperties.KEEP_ALIVE_LOG_FILENAME));
+				} catch (IOException e) {
+				}
+				TimeStamp lastKeepAlive = new Gson().fromJson(new String(lastKeepAliveByteArray), TimeStamp.class);
+				if (lastKeepAlive != null) {
+					logOutLog.addTimeStamp(lastKeepAlive.getTimeStamp());
+				}
+				String timeStampLogJson = new Gson().toJson(logOutLog);
+				try {
+					cloudPersistence.write(Paths.get(groupId + "_" + AppProperties.LOGOUT_LOG_FILENAME),
+							timeStampLogJson.getBytes());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+		};
+		updateLogOutLogThread.start();
+	}
+
+	private static void startKeepAliveLog() {
+		Thread keepAliveThread = new Thread() {
+			public void run() {
+				while (true) {
+					try {
+						TimeUnit.SECONDS.sleep(AppProperties.INTERVALL_KEEP_ALIVE_LOG);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					TimeStamp keepAlive = new TimeStamp();
+					String timeStampJson = new Gson().toJson(keepAlive);
+					String groupId = SettingsPersistence.getInstance().getLocalSettings().getPlayerGroup2Digits();
+					try {
+						cloudPersistence.write(Paths.get(groupId + "_" + AppProperties.KEEP_ALIVE_LOG_FILENAME),
+								timeStampJson.getBytes());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+		keepAliveThread.start();
 	}
 
 }

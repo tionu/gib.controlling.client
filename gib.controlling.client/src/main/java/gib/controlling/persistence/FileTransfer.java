@@ -55,7 +55,7 @@ public class FileTransfer {
 	public static void uploadFileWithTimeStamp(Path filePath) {
 		log.debug("upload file with timestamp...");
 		uploadFile(filePath);
-		TimeStamp lastUpload = new TimeStamp(System.currentTimeMillis());
+		TimeStamp lastUpload = new TimeStamp();
 		String timeStampJson = new Gson().toJson(lastUpload);
 		String groupId = SettingsPersistence.getInstance().getLocalSettings().getPlayerGroup2Digits();
 		try {

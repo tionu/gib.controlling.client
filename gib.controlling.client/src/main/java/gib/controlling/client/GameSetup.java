@@ -105,21 +105,27 @@ public class GameSetup {
 	}
 
 	private PlayerRequest loadPlayerRequest() {
-		byte[] lastPlayerByteArray = null;
+		byte[] lastPlayerByteArray = new byte[0];
 		try {
-			lastPlayerByteArray = cloudPersistence.read(Paths.get("lastPlayerRequest.json"));
+			lastPlayerByteArray = cloudPersistence.read(AppProperties.LAST_PLAYER_REQUEST_FILENAME);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		PlayerRequest lastPlayerRequest = new Gson().fromJson(new String(lastPlayerByteArray), PlayerRequest.class);
-		return lastPlayerRequest;
+		if (lastPlayerRequest != null) {
+			return lastPlayerRequest;
+		} else {
+			PlayerRequest emptyRequest = new PlayerRequest();
+			emptyRequest.setTimestamp(0);
+			return emptyRequest;
+		}
 
 	}
 
 	private void savePlayerRequest(PlayerRequest playerRequest) {
 		String settingsJson = new Gson().toJson(playerRequest);
 		try {
-			cloudPersistence.write(Paths.get("lastPlayerRequest.json"), settingsJson.getBytes());
+			cloudPersistence.write(AppProperties.LAST_PLAYER_REQUEST_FILENAME, settingsJson.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
