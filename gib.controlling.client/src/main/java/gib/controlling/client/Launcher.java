@@ -54,7 +54,7 @@ public class Launcher {
 		while (true) {
 			if (GameStateProvider.getGameState() == State.OFFLINE) {
 				try {
-					TimeUnit.MILLISECONDS.sleep(500);
+					TimeUnit.MILLISECONDS.sleep(250);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -62,9 +62,7 @@ public class Launcher {
 				break;
 			}
 		}
-
-		log.info("game state: " + GameStateProvider.getGameState().toString());
-
+		
 		Path workingDirectory = AppProperties.getWorkingDirectory();
 		if (!Files.exists(workingDirectory)) {
 			log.debug("create working directory: " + workingDirectory.toString());
@@ -90,8 +88,16 @@ public class Launcher {
 		}
 
 		if (!settingsPersistence.validateSettings()) {
-			log.warn("settings invalid - delete \"" + AppProperties.getWorkingDirectory() + "\\"
-					+ AppProperties.USER_SETTINGS_FILENAME + "\" to reset game. ");
+			if (GameStateProvider.getGameState() != State.OPEN_FOR_NEW_PLAYERS) {
+				log.info("no new players allowed.");
+			}
+			if (GameStateProvider.getGameState() == State.FINISHED) {
+				log.info("game finished.");
+			}
+			if (GameStateProvider.getGameState() == State.OFFLINE) {
+				log.info("offline - please check internet connection.");
+			}
+			log.warn("settings invalid - can't start the game.");
 			while (true) {
 				try {
 					TimeUnit.SECONDS.sleep(15);

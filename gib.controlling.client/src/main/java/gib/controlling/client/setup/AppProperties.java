@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class AppProperties {
 
-	public static final Path APP_PATH = Paths.get("KlimaData/Klima.exe");
+	public static final Path APP_PATH = Paths.get(System.getenv("APPDATA"), "/KlimaData/Klima.exe");
 
 	public static final Path USER_SETTINGS_FILENAME = Paths.get("user.json");
 
