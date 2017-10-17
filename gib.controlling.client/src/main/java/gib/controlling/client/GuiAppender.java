@@ -20,12 +20,10 @@ public class GuiAppender extends AppenderSkeleton {
 
 	private JFrame frame;
 	private JTextArea textArea;
-	private boolean isLocked;
 
 	private GuiAppender() {
 		frame = new JFrame();
 		textArea = new JTextArea(6, 30);
-		isLocked = true;
 		drawGui();
 	}
 
@@ -45,28 +43,12 @@ public class GuiAppender extends AppenderSkeleton {
 		}
 	}
 
-	public void setLockVisible(boolean isLocked) {
-		this.isLocked = isLocked;
-	}
-
 	public void hide() {
-		if (!isLocked) {
-			frame.setVisible(false);
-		}
+		frame.setVisible(false);
 	}
 
 	public void show() {
-		if (!isLocked) {
-			frame.setVisible(true);
-		}
-	}
-
-	public void setExitOnClose(boolean exitOnClose) {
-		if (exitOnClose) {
-			frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		} else {
-			frame.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-		}
+		frame.setVisible(true);
 	}
 
 	public void close() {

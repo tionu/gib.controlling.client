@@ -27,11 +27,13 @@ public final class AppProperties {
 
 	public static final Path NEW_GAME_FILES_CLOUD_PATH = Paths.get("new_game/");
 
-	public static final int POLLING_INTERVALL_LEVEL_CHANGE = 20;
+	public static final int POLLING_INTERVALL_LEVEL_CHANGE = 60;
 
-	public static final int POLLING_INTERVALL_GAME_STATE = 10;
+	public static int POLLING_INTERVALL_GAME_STATE = 10;
+	
+	public static final int POLLING_INTERVALL_GAME_STATE_RUNNING = 900;
 
-	public static final int INTERVALL_KEEP_ALIVE_LOG = 15;
+	public static final int INTERVALL_KEEP_ALIVE_LOG = 20;
 
 	public static final String ZOHO_AUTH_TOKEN = "";
 

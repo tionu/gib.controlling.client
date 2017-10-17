@@ -32,6 +32,7 @@ public class AppControl implements Runnable, Observer {
 
 	public void restartApp() {
 		log.info("restart app.");
+		GuiAppender.getInstance().show();
 		state = State.RESTART;
 		if (app != null) {
 			app.destroy();
@@ -67,7 +68,6 @@ public class AppControl implements Runnable, Observer {
 				|| !Files.exists(AppProperties.getWorkingDirectory().resolve("KL_STA"
 						+ SettingsPersistence.getInstance().getLocalSettings().getPlayerGroup2Digits() + ".DAT"))) {
 			log.info("app not ready: " + AppProperties.APP_PATH.toString());
-			GuiAppender.getInstance().setLockVisible(true);
 			GuiAppender.getInstance().show();
 			try {
 				TimeUnit.SECONDS.sleep(15);
@@ -80,7 +80,6 @@ public class AppControl implements Runnable, Observer {
 			ProcessBuilder processBuilder = new ProcessBuilder(appPath);
 			processBuilder.directory(AppProperties.getWorkingDirectory().toFile());
 			app = processBuilder.start();
-			GuiAppender.getInstance().setLockVisible(false);
 			GuiAppender.getInstance().hide();
 			app.waitFor();
 			if (state != State.RESTART) {

@@ -62,7 +62,9 @@ public class Launcher {
 				break;
 			}
 		}
-		
+
+		AppProperties.POLLING_INTERVALL_GAME_STATE = AppProperties.POLLING_INTERVALL_GAME_STATE_RUNNING;
+
 		Path workingDirectory = AppProperties.getWorkingDirectory();
 		if (!Files.exists(workingDirectory)) {
 			log.debug("create working directory: " + workingDirectory.toString());
