@@ -1,7 +1,6 @@
 package gib.controlling.client;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Observable;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +57,7 @@ public class LevelChangeObservable extends Observable implements Runnable {
 	public int getLevel() throws CloudConnectionException {
 		byte[] levelByteArray = new byte[0];
 		try {
-			levelByteArray = cloudPersistence.read(Paths.get("level.json"));
+			levelByteArray = cloudPersistence.read(AppProperties.LEVEL_FILENAME);
 		} catch (IOException e) {
 		}
 		Level level = new Gson().fromJson(new String(levelByteArray), Level.class);

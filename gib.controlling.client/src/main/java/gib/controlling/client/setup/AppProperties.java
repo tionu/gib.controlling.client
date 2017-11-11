@@ -7,7 +7,9 @@ import java.util.List;
 
 public final class AppProperties {
 
-	public static final Path APP_PATH = Paths.get(System.getenv("APPDATA"), "/KlimaData/Klima.exe");
+	public static Path APP_PATH = Paths.get(System.getenv("APPDATA"), "/KlimaData/Klima.exe");
+
+	public static Path APP_PATH_STRATEG = Paths.get(System.getenv("APPDATA"), "/KlimaStrateg/Strateg.exe");
 
 	public static final Path USER_SETTINGS_FILENAME = Paths.get("user.json");
 
@@ -20,6 +22,8 @@ public final class AppProperties {
 	public static final Path LOGOUT_LOG_FILENAME = Paths.get("logout.json");
 
 	public static final Path GAME_STATE_FILENAME = Paths.get("game_state.json");
+	
+	public static final Path LEVEL_FILENAME = Paths.get("level.json");
 
 	public static final Path LAST_PLAYER_REQUEST_FILENAME = Paths.get("lastPlayerRequest.json");
 
@@ -30,12 +34,18 @@ public final class AppProperties {
 	public static final int POLLING_INTERVALL_LEVEL_CHANGE = 60;
 
 	public static int POLLING_INTERVALL_GAME_STATE = 10;
-	
+
 	public static final int POLLING_INTERVALL_GAME_STATE_RUNNING = 900;
 
 	public static final int INTERVALL_KEEP_ALIVE_LOG = 20;
 
+	// auth token production
+//	public static final String ZOHO_AUTH_TOKEN = "";
+	
+//	auth token test account
 	public static final String ZOHO_AUTH_TOKEN = "";
+	
+	
 
 	public static List<Path> filePaths = new ArrayList<Path>();
 
