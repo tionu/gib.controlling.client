@@ -38,7 +38,7 @@ public abstract class ZohoDocsUtils {
 			return "";
 		}
 		for (ZohoFile file : directoryListing.getFiles()) {
-			if (file.getDocName().equals(path.getFileName().toString())) {
+			if (file.getDocName().equalsIgnoreCase(path.getFileName().toString())) {
 				return file.getDocId();
 			}
 		}
