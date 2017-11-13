@@ -1,5 +1,7 @@
 package gib.controlling.client;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -8,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.JTextArea;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
@@ -20,6 +24,7 @@ import gib.controlling.client.exceptions.CloudConnectionException;
 import gib.controlling.client.mappings.GameState.State;
 import gib.controlling.client.mappings.TimeStamp;
 import gib.controlling.client.mappings.TimeStampLog;
+import gib.controlling.client.mappings.UserSettings;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.FileTransfer;
 import gib.controlling.persistence.HiDrivePersistenceProvider;
@@ -32,6 +37,9 @@ public class Launcher {
 	private static SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
 	private static LevelChangeObservable levelObservable = new LevelChangeObservable();
 	private static Logger log = Logger.getLogger(Launcher.class.getName());
+
+	private static boolean isNewGame = false;
+	private static boolean resetLocalData = false;
 
 	public static void main(String[] args) {
 
@@ -87,7 +95,6 @@ public class Launcher {
 		settingsPersistence.getLocalSettings().setClientVersion(AppProperties.CLIENT_VERSION);
 		log.info("client version: " + settingsPersistence.getLocalSettings().getClientVersion());
 
-		boolean isNewGame = false;
 		if (GameStateProvider.getGameState() == State.OPEN_FOR_NEW_PLAYERS) {
 			isNewGame = checkGameSetup(isNewGame);
 		}
@@ -103,20 +110,96 @@ public class Launcher {
 				log.info("offline - please check internet connection.");
 			}
 			log.warn("settings invalid - can't start the game.");
-			while (true) {
+
+			JTextArea textArea = GuiAppender.getInstance().getTextArea();
+			KeyListener resetListener = new KeyListener() {
+
+				public void keyPressed(KeyEvent e) {
+					if (e.getKeyCode() == KeyEvent.VK_R) {
+						resetLocalData = true;
+						backupGameData();
+						UserSettings localUserSettings = settingsPersistence.getLocalSettings();
+						localUserSettings.setPlayerGroup(0);
+						if (GameStateProvider.getGameState() == State.OPEN_FOR_NEW_PLAYERS) {
+							isNewGame = checkGameSetup(isNewGame);
+							resetLocalData = false;
+						}
+					}
+				}
+
+				private void backupGameData() {
+					long backupTimeStamp = System.currentTimeMillis();
+					log.info("create backup: " + backupTimeStamp);
+					new File(AppProperties.getWorkingDirectory().resolve(Paths.get("" + backupTimeStamp)).toUri())
+							.mkdir();
+
+					try {
+						for (Path filePath : AppProperties.filePaths) {
+							if (Files.exists(AppProperties.getWorkingDirectory().resolve(filePath))) {
+								Files.copy(AppProperties.getWorkingDirectory().resolve(filePath),
+										AppProperties.getWorkingDirectory()
+												.resolve(Paths.get("" + backupTimeStamp + File.separator + filePath)));
+							}
+						}
+						Files.copy(AppProperties.getWorkingDirectory().resolve(AppProperties.USER_SETTINGS_FILENAME),
+								AppProperties.getWorkingDirectory().resolve(Paths.get(
+										"" + backupTimeStamp + File.separator + AppProperties.USER_SETTINGS_FILENAME)));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				public void keyTyped(KeyEvent e) {
+				}
+
+				public void keyReleased(KeyEvent e) {
+				}
+
+			};
+
+			if (GameStateProvider.getGameState() == State.OPEN_FOR_NEW_PLAYERS) {
+				log.warn("press [R] to delete current game data and reset to defaults...");
+				textArea.addKeyListener(resetListener);
+			}
+
+			int counter = 0;
+			while (!resetLocalData) {
+				counter++;
 				try {
-					TimeUnit.SECONDS.sleep(15);
+					TimeUnit.MILLISECONDS.sleep(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				System.exit(1);
+				if (counter > 15000) {
+					System.exit(1);
+				}
 			}
+			log.info("reset game...");
+			textArea.removeKeyListener(resetListener);
+			counter = 0;
+			while (resetLocalData) {
+				counter++;
+				try {
+					TimeUnit.MILLISECONDS.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if (counter > 15000) {
+					System.exit(1);
+				}
+			}
+
 		}
 
-		if (!settingsPersistence.getLocalSettings().getClientVersion()
-				.equals(settingsPersistence.getCloudSettings().getClientVersion())) {
-			settingsPersistence.setCloudSettings(settingsPersistence.getLocalSettings());
-			settingsPersistence.saveCloudSettings();
+		try {
+			settingsPersistence.loadCloudSettings();
+			if (!settingsPersistence.getLocalSettings().getClientVersion()
+					.equals(settingsPersistence.getCloudSettings().getClientVersion())) {
+				settingsPersistence.setCloudSettings(settingsPersistence.getLocalSettings());
+				settingsPersistence.saveCloudSettings();
+			}
+		} catch (IOException e) {
+			log.debug("could not update cloud settings.");
 		}
 
 		updateLogInLog();

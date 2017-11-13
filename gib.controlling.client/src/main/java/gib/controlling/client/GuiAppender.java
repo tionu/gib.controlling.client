@@ -79,4 +79,8 @@ public class GuiAppender extends AppenderSkeleton {
 		frame.setVisible(true);
 	}
 
+	public JTextArea getTextArea() {
+		return textArea;
+	}
+
 }

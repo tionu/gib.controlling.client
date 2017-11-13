@@ -71,6 +71,9 @@ public class UserSettings {
 	}
 
 	public String getClientVersion() {
+		if (clientVersion == null) {
+			return "";
+		}
 		return clientVersion;
 	}
 

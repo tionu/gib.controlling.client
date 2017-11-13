@@ -65,6 +65,7 @@ public class SettingsPersistence {
 		UserSettings defaultSettings = new UserSettings();
 		UUID uuid = UUID.randomUUID();
 		defaultSettings.setPlayerUuid(uuid.toString());
+		defaultSettings.setClientVersion(AppProperties.CLIENT_VERSION);
 		int currentLevel;
 		try {
 			currentLevel = new LevelChangeObservable().getLevel();
