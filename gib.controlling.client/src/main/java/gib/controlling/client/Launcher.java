@@ -22,13 +22,13 @@ import gib.controlling.client.mappings.TimeStamp;
 import gib.controlling.client.mappings.TimeStampLog;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.FileTransfer;
+import gib.controlling.persistence.HiDrivePersistenceProvider;
 import gib.controlling.persistence.PersistenceProvider;
 import gib.controlling.persistence.SettingsPersistence;
-import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class Launcher {
 
-	private static PersistenceProvider cloudPersistence = new ZohoPersistenceProvider(AppProperties.ZOHO_AUTH_TOKEN);
+	private static PersistenceProvider cloudPersistence = new HiDrivePersistenceProvider();
 	private static SettingsPersistence settingsPersistence = SettingsPersistence.getInstance();
 	private static LevelChangeObservable levelObservable = new LevelChangeObservable();
 	private static Logger log = Logger.getLogger(Launcher.class.getName());
@@ -84,6 +84,9 @@ public class Launcher {
 
 		settingsPersistence.loadLocalSettings();
 
+		settingsPersistence.getLocalSettings().setClientVersion(AppProperties.CLIENT_VERSION);
+		log.info("client version: " + settingsPersistence.getLocalSettings().getClientVersion());
+
 		boolean isNewGame = false;
 		if (GameStateProvider.getGameState() == State.OPEN_FOR_NEW_PLAYERS) {
 			isNewGame = checkGameSetup(isNewGame);
@@ -108,6 +111,12 @@ public class Launcher {
 				}
 				System.exit(1);
 			}
+		}
+
+		if (!settingsPersistence.getLocalSettings().getClientVersion()
+				.equals(settingsPersistence.getCloudSettings().getClientVersion())) {
+			settingsPersistence.setCloudSettings(settingsPersistence.getLocalSettings());
+			settingsPersistence.saveCloudSettings();
 		}
 
 		updateLogInLog();

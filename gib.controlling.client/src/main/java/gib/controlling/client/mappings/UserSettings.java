@@ -20,9 +20,14 @@ public class UserSettings {
 	@Expose
 	private int level;
 
+	@SerializedName("clientVersion")
+	@Expose
+	private String clientVersion;
+
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder().append(playerUuid).append(playerGroup).append(level).toHashCode();
+		return new HashCodeBuilder().append(playerUuid).append(playerGroup).append(level).append(clientVersion)
+				.toHashCode();
 	}
 
 	@Override
@@ -63,6 +68,14 @@ public class UserSettings {
 
 	public void setLevel(int level) {
 		this.level = level;
+	}
+
+	public String getClientVersion() {
+		return clientVersion;
+	}
+
+	public void setClientVersion(String clientVersion) {
+		this.clientVersion = clientVersion;
 	}
 
 }

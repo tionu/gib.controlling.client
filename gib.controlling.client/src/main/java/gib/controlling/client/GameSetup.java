@@ -14,9 +14,9 @@ import com.google.gson.Gson;
 import gib.controlling.client.mappings.PlayerRequest;
 import gib.controlling.client.setup.AppProperties;
 import gib.controlling.persistence.FileTransfer;
+import gib.controlling.persistence.HiDrivePersistenceProvider;
 import gib.controlling.persistence.PersistenceProvider;
 import gib.controlling.persistence.SettingsPersistence;
-import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class GameSetup {
 
@@ -25,7 +25,7 @@ public class GameSetup {
 	private Logger log;
 
 	public GameSetup() {
-		cloudPersistence = new ZohoPersistenceProvider(AppProperties.ZOHO_AUTH_TOKEN);
+		cloudPersistence = new HiDrivePersistenceProvider();
 		log = Logger.getLogger(GameSetup.class.getName());
 	}
 

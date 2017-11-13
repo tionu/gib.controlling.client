@@ -11,9 +11,9 @@ import com.google.gson.Gson;
 import gib.controlling.client.exceptions.CloudConnectionException;
 import gib.controlling.client.mappings.Level;
 import gib.controlling.client.setup.AppProperties;
+import gib.controlling.persistence.HiDrivePersistenceProvider;
 import gib.controlling.persistence.PersistenceProvider;
 import gib.controlling.persistence.SettingsPersistence;
-import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class LevelChangeObservable extends Observable implements Runnable {
 
@@ -22,7 +22,7 @@ public class LevelChangeObservable extends Observable implements Runnable {
 	private Logger log;
 
 	public LevelChangeObservable() {
-		cloudPersistence = new ZohoPersistenceProvider(AppProperties.ZOHO_AUTH_TOKEN);
+		cloudPersistence = new HiDrivePersistenceProvider();
 		log = Logger.getLogger(LevelChangeObservable.class.getName());
 	}
 

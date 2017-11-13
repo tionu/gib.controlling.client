@@ -11,7 +11,6 @@ import gib.controlling.client.LevelChangeObservable;
 import gib.controlling.client.exceptions.CloudConnectionException;
 import gib.controlling.client.mappings.UserSettings;
 import gib.controlling.client.setup.AppProperties;
-import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class SettingsPersistence {
 
@@ -21,7 +20,7 @@ public class SettingsPersistence {
 	private UserSettings cloudSettings;
 
 	private SettingsPersistence() {
-		cloudPersistence = new ZohoPersistenceProvider(AppProperties.ZOHO_AUTH_TOKEN);
+		cloudPersistence = new HiDrivePersistenceProvider();
 	}
 
 	public static SettingsPersistence getInstance() {

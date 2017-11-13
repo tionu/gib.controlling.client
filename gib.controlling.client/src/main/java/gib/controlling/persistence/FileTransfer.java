@@ -11,11 +11,10 @@ import com.google.gson.Gson;
 
 import gib.controlling.client.mappings.TimeStamp;
 import gib.controlling.client.setup.AppProperties;
-import gib.controlling.zohoAPI.ZohoPersistenceProvider;
 
 public class FileTransfer {
 
-	private static PersistenceProvider cloudPersistence = new ZohoPersistenceProvider(AppProperties.ZOHO_AUTH_TOKEN);
+	private static PersistenceProvider cloudPersistence = new HiDrivePersistenceProvider();
 
 	private static Logger log = Logger.getLogger(FileTransfer.class.getName());
 
