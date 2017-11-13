@@ -15,7 +15,7 @@ public class HiDrivePersistenceProvider implements PersistenceProvider {
 	public static final String USER = "";
 	public static final String PASSWORD = "";
 
-	public static final String BASE_PATH = "https://webdav.hidrive.strato.com/users/7i1yu2c92q1sqvcc/";
+	public static final String BASE_PATH = "https://webdav.hidrive.strato.com/users/" + USER + "/";
 
 	private Sardine webdav;
 	private Logger log;
