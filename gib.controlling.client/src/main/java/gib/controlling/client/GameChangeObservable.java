@@ -61,6 +61,7 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 			}
 
 			if (levelChangerState != State.IDLE) {
+				log.debug("file changed but level changer state is idle.");
 				continue;
 			}
 
