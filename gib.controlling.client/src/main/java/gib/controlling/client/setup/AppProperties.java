@@ -40,17 +40,44 @@ public final class AppProperties {
 	public static final int POLLING_INTERVALL_GAME_STATE_RUNNING = 60;
 
 	public static final int INTERVALL_KEEP_ALIVE_LOG = 15;
+	
+	public static final String DATE_FORMAT = "dd.MM. HH:mm";
 
 	public static List<Path> filePaths = new ArrayList<Path>();
 
 	static {
 		filePaths.add(Paths.get("ent1.txt"));
-		filePaths.add(Paths.get("ent1.xml"));
 		filePaths.add(Paths.get("ent2.txt"));
+		filePaths.add(Paths.get("ent3.txt"));
+		filePaths.add(Paths.get("ent4.txt"));
+		filePaths.add(Paths.get("ent5.txt"));
+		filePaths.add(Paths.get("ent6.txt"));
+		filePaths.add(Paths.get("ent7.txt"));
+		filePaths.add(Paths.get("ent8.txt"));
+		filePaths.add(Paths.get("ent9.txt"));
+		filePaths.add(Paths.get("ent10.txt"));
+		filePaths.add(Paths.get("ent1.xml"));
 		filePaths.add(Paths.get("ent2.xml"));
+		filePaths.add(Paths.get("ent3.xml"));
+		filePaths.add(Paths.get("ent4.xml"));
+		filePaths.add(Paths.get("ent5.xml"));
+		filePaths.add(Paths.get("ent6.xml"));
+		filePaths.add(Paths.get("ent7.xml"));
+		filePaths.add(Paths.get("ent8.xml"));
+		filePaths.add(Paths.get("ent9.xml"));
+		filePaths.add(Paths.get("ent10.xml"));
 		filePaths.add(Paths.get("ENTERG.DAT"));
 		filePaths.add(Paths.get("erg0.xml"));
 		filePaths.add(Paths.get("erg1.xml"));
+		filePaths.add(Paths.get("erg2.xml"));
+		filePaths.add(Paths.get("erg3.xml"));
+		filePaths.add(Paths.get("erg4.xml"));
+		filePaths.add(Paths.get("erg5.xml"));
+		filePaths.add(Paths.get("erg6.xml"));
+		filePaths.add(Paths.get("erg7.xml"));
+		filePaths.add(Paths.get("erg8.xml"));
+		filePaths.add(Paths.get("erg9.xml"));
+		filePaths.add(Paths.get("erg10.xml"));
 		filePaths.add(Paths.get("KL_STA01.DAT"));
 		filePaths.add(Paths.get("KL_STA02.DAT"));
 		filePaths.add(Paths.get("KL_STA03.DAT"));
@@ -63,7 +90,7 @@ public final class AppProperties {
 		filePaths.add(Paths.get("KL_STA10.DAT"));
 		filePaths.add(Paths.get("SL.DAT"));
 	}
-
+	
 	public static Path getWorkingDirectory() {
 		if (APP_PATH.getParent() != null) {
 			return APP_PATH.getParent();

@@ -279,6 +279,9 @@ public class Launcher {
 				log.info("level unchanged - sync current game state...");
 				FileTransfer.uploadFileWithTimeStamp(
 						Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
+				FileTransfer.uploadFile(
+						Paths.get("ENTERG.DAT"),
+						Paths.get("ENTERG" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
 			} else {
 				log.info("level changed: " + level + " - download new level data...");
 				ObserveLevel.getInstance().changeLevel(level);

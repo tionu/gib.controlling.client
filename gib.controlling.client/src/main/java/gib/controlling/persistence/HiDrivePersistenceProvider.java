@@ -28,12 +28,12 @@ public class HiDrivePersistenceProvider implements PersistenceProvider {
 	}
 
 	public void write(Path path, byte[] bytes) throws IOException {
-		webdav.put(BASE_PATH + path.toString(), bytes);
+		webdav.put(BASE_PATH + path.toString().replace('\\', '/'), bytes);
 		log.debug("write to cloud: " + path.toString().replace('\\', '/'));
 	}
 
 	public byte[] read(Path path) throws IOException {
-		log.debug("read from cloud: " + path.toString());
+		log.debug("read from cloud: " + path.toString().replace('\\', '/'));
 		InputStream is = webdav.get(BASE_PATH + path.toString().replace('\\', '/'));
 		return IOUtils.toByteArray(is);
 	}

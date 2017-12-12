@@ -41,11 +41,15 @@ public class FileTransfer {
 	}
 
 	public static void uploadFile(Path filePath) {
+		uploadFile(filePath, filePath);
+	}
+
+	public static void uploadFile(Path SourceFilePath, Path targetFilePath) {
 		log.debug("upload file...");
 		byte[] fileData;
 		try {
-			fileData = Files.readAllBytes(AppProperties.getWorkingDirectory().resolve(filePath));
-			cloudPersistence.write(filePath, fileData);
+			fileData = Files.readAllBytes(AppProperties.getWorkingDirectory().resolve(SourceFilePath));
+			cloudPersistence.write(targetFilePath, fileData);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -63,6 +67,19 @@ public class FileTransfer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void deleteFile(Path filePath) {
+		log.debug("delete file...");
+		try {
+			cloudPersistence.delete(filePath);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	public static PersistenceProvider getCloudPersistence() {
+		return cloudPersistence;
 	}
 
 }
