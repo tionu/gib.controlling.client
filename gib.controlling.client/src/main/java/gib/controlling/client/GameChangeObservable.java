@@ -28,7 +28,7 @@ public class GameChangeObservable extends Observable implements Runnable, Observ
 
 	public GameChangeObservable(Path pathToObserve) {
 		this.pathToObserve = pathToObserve;
-		this.levelChangerState = State.IDLE;
+		levelChangerState = State.IDLE;
 		observeFilenames = new HashSet<String>();
 		log = Logger.getLogger(GameChangeObservable.class.getName());
 	}

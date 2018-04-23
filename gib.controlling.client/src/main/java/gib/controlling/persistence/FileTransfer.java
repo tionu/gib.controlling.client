@@ -36,7 +36,7 @@ public class FileTransfer {
 			fileData = cloudPersistence.read(sourceFilePath);
 			Files.write(AppProperties.getWorkingDirectory().resolve(destinationFilePath), fileData);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.debug("file not found: " + sourceFilePath);
 		}
 	}
 

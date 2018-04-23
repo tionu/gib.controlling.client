@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
 import javax.swing.text.DefaultCaret;
 
@@ -34,6 +35,7 @@ public class GuiAppender extends AppenderSkeleton {
 		return instance;
 	}
 
+	@Override
 	protected void append(LoggingEvent event) {
 		if (!event.getLoggerName().toString().startsWith("gib.controlling")) {
 			return;
@@ -71,7 +73,7 @@ public class GuiAppender extends AppenderSkeleton {
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		panel.add(scrollPane);
 		frame.add(panel);
 		frame.pack();

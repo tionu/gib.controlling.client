@@ -204,7 +204,7 @@ public class Launcher {
 
 		updateLogInLog();
 
-		if (!isNewGame && GameStateProvider.getGameState() != State.FINISHED) {
+		if (!isNewGame && (GameStateProvider.getGameState() != State.FINISHED)) {
 			log.info("update game files...");
 			updateGameFiles();
 		}
@@ -254,6 +254,7 @@ public class Launcher {
 		new Thread(appControl).start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
 			public void run() {
 				Runtime runTime = Runtime.getRuntime();
 				try {
@@ -279,8 +280,7 @@ public class Launcher {
 				log.info("level unchanged - sync current game state...");
 				FileTransfer.uploadFileWithTimeStamp(
 						Paths.get("KL_STA" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
-				FileTransfer.uploadFile(
-						Paths.get("ENTERG.DAT"),
+				FileTransfer.uploadFile(Paths.get("ENTERG.DAT"),
 						Paths.get("ENTERG" + settingsPersistence.getLocalSettings().getPlayerGroup2Digits() + ".DAT"));
 			} else {
 				log.info("level changed: " + level + " - download new level data...");
@@ -294,6 +294,7 @@ public class Launcher {
 
 	private static void updateLogInLog() {
 		Thread updateLogInLogThread = new Thread() {
+			@Override
 			public void run() {
 				String groupId = SettingsPersistence.getInstance().getLocalSettings().getPlayerGroup2Digits();
 				byte[] logInLogByteArray = new byte[0];
@@ -325,6 +326,7 @@ public class Launcher {
 
 	private static void updateLogOutLog() {
 		Thread updateLogOutLogThread = new Thread() {
+			@Override
 			public void run() {
 				String groupId = SettingsPersistence.getInstance().getLocalSettings().getPlayerGroup2Digits();
 				byte[] logOutLogByteArray = new byte[0];
@@ -367,6 +369,7 @@ public class Launcher {
 
 	private static void startKeepAliveLog() {
 		Thread keepAliveThread = new Thread() {
+			@Override
 			public void run() {
 				while (true) {
 					try {

@@ -7,7 +7,7 @@ public interface PersistenceProvider {
 
 	/**
 	 * writes data to persistence layer.
-	 * 
+	 *
 	 * @param path
 	 *            target location in persistence layer
 	 * @param bytes
@@ -18,7 +18,7 @@ public interface PersistenceProvider {
 
 	/**
 	 * reads data from persistence layer.
-	 * 
+	 *
 	 * @param path
 	 *            source location in persistence layer
 	 * @return data to read
@@ -28,7 +28,7 @@ public interface PersistenceProvider {
 
 	/**
 	 * deletes data from persistence layer.
-	 * 
+	 *
 	 * @param path
 	 *            data location in persistence layer
 	 * @throws IOException
@@ -37,7 +37,7 @@ public interface PersistenceProvider {
 
 	/**
 	 * Tests whether a resource exists.
-	 * 
+	 *
 	 * @param path
 	 *            the path to the resource
 	 * @return {@code true} if the resource exists; {@code false} if the

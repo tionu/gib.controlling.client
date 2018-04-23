@@ -40,7 +40,7 @@ public final class AppProperties {
 	public static final int POLLING_INTERVALL_GAME_STATE_RUNNING = 60;
 
 	public static final int INTERVALL_KEEP_ALIVE_LOG = 15;
-	
+
 	public static final String DATE_FORMAT = "dd.MM. HH:mm";
 
 	public static List<Path> filePaths = new ArrayList<Path>();
@@ -90,7 +90,7 @@ public final class AppProperties {
 		filePaths.add(Paths.get("KL_STA10.DAT"));
 		filePaths.add(Paths.get("SL.DAT"));
 	}
-	
+
 	public static Path getWorkingDirectory() {
 		if (APP_PATH.getParent() != null) {
 			return APP_PATH.getParent();
